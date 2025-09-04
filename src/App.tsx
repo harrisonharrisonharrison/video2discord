@@ -6,12 +6,12 @@ function App() {
 
   return (
     <>
-      <div className='absolute top-0 left-0 w-screen'>
-        <TopBar/>
-      </div>
+      <TopBar/>
       
-      <div className='text-3xl font-bold underline'>
-        Hello
+      <div className='w-screen h-screen bg-gradient-to-b from-darple to-blurple flex justify-center'>
+        <div id="dropzone" className='border-white border-2 border-dashed w-[70vw] h-[40vh] bg-nqb rounded-3xl shadow-2xl flex justify-center items-center text-white text-3xl font-semibold'>
+          Drag Files Here
+        </div>
       </div>
     </>
   )

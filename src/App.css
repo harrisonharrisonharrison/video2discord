@@ -1,1 +1,11 @@
 @import "tailwindcss";
+
+* {
+    overflow: hidden;
+}
+
+@theme {
+    --color-blurple: #5865F2;
+    --color-darple: #4E5D94;
+    --color-nqb: #23272A;
+}

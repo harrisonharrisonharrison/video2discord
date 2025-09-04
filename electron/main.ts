@@ -1,4 +1,4 @@
-import { app, BrowserWindow } from 'electron'
+import { app, BrowserWindow, ipcMain } from 'electron'
 import { createRequire } from 'node:module'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
@@ -36,8 +36,9 @@ function createWindow() {
     autoHideMenuBar: true,
     width: 800,
     height: 600,
+    transparent: true,
   })
-
+  
   // Test active push message to Renderer-process.
   win.webContents.on('did-finish-load', () => {
     win?.webContents.send('main-process-message', (new Date).toLocaleString())
@@ -50,6 +51,16 @@ function createWindow() {
     win.loadFile(path.join(RENDERER_DIST, 'index.html'))
   }
 }
+
+ipcMain.on('minimize-window', () => {
+  const win = BrowserWindow.getFocusedWindow()
+  win?.minimize()
+})
+
+ipcMain.on('close-window', () => {
+  const win = BrowserWindow.getFocusedWindow()
+  win?.close()
+})
 
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits

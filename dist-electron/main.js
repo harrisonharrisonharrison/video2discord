@@ -1,4 +1,4 @@
-import { app, BrowserWindow } from "electron";
+import { ipcMain, BrowserWindow, app } from "electron";
 import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
@@ -19,7 +19,8 @@ function createWindow() {
     frame: false,
     autoHideMenuBar: true,
     width: 800,
-    height: 600
+    height: 600,
+    transparent: true
   });
   win.webContents.on("did-finish-load", () => {
     win == null ? void 0 : win.webContents.send("main-process-message", (/* @__PURE__ */ new Date()).toLocaleString());
@@ -30,6 +31,14 @@ function createWindow() {
     win.loadFile(path.join(RENDERER_DIST, "index.html"));
   }
 }
+ipcMain.on("minimize-window", () => {
+  const win2 = BrowserWindow.getFocusedWindow();
+  win2 == null ? void 0 : win2.minimize();
+});
+ipcMain.on("close-window", () => {
+  const win2 = BrowserWindow.getFocusedWindow();
+  win2 == null ? void 0 : win2.close();
+});
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {
     app.quit();

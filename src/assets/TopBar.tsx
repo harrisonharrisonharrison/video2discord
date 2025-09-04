@@ -2,15 +2,15 @@ import React from 'react'
 
 export default function TopBar() {
     const handleMinimize = () => {
-        window.electron.ipcRenderer.send('minimize-window')
+        window.ipcRenderer.send('minimize-window')
     }
     const handleClose = () => {
-        window.electron.ipcRenderer.send('close-window')
+        window.ipcRenderer.send('close-window')
     }
   return (
     <div>
       <div
-        className="rounded-t-xl bg-red-950 w-screen h-7"
+        className="rounded-t-xl bg-darple w-screen h-7"
         style={{ WebkitAppRegion: 'drag' }}
       ></div>
       <div id="control-buttons" className="text-stone-200 absolute top-0 right-0 pe-2" style={{ WebkitAppRegion: 'no-drag' }}>
