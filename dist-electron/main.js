@@ -1,6 +1,7 @@
 import { ipcMain, BrowserWindow, app } from "electron";
 import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
+import { spawn } from "child_process";
 import path from "node:path";
 createRequire(import.meta.url);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -38,6 +39,22 @@ ipcMain.on("minimize-window", () => {
 ipcMain.on("close-window", () => {
   const win2 = BrowserWindow.getFocusedWindow();
   win2 == null ? void 0 : win2.close();
+});
+ipcMain.on("compress-video", (event, filePath) => {
+  const scriptPath = path.join(process.env.APP_ROOT, "python", "main.py");
+  const outputFile = filePath.replace(/\.mp4$/, "_compressed.mp4");
+  const python = spawn("python", [scriptPath, filePath, outputFile, "8000"]);
+  python.stdout.on("data", (data) => {
+    console.log(`stdout: ${data}`);
+    event.sender.send("compress-progress", data.toString());
+  });
+  python.stderr.on("data", (data) => {
+    console.error(`stderr: ${data}`);
+  });
+  python.on("close", (code) => {
+    console.log(`Python exited with code ${code}`);
+    event.sender.send("compress-done", outputFile);
+  });
 });
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {
