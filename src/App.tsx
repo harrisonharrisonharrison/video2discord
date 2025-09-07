@@ -1,9 +1,8 @@
-
 import './App.css'
 import Dropzone from './assets/Dropzone';
 import TopBar from './assets/TopBar'
-import { AiFillPicture } from "react-icons/ai";
-
+import Input from './assets/input';
+import Start from './assets/Start';
 
 function App() {
 
@@ -11,8 +10,12 @@ function App() {
     <>
       <TopBar/>
       
-      <div className='w-screen h-screen bg-gradient-to-b from-darple to-blurple flex justify-center p-10'>
+      <div className='w-screen h-screen bg-gradient-to-b from-darple to-blurple flex flex-col items-center p-10'>
         <Dropzone />
+        <div className='flex gap-5 items-center text-white text-center mt-10'>
+          <Input />
+          <Start />
+        </div>
       </div>
     </>
   )
