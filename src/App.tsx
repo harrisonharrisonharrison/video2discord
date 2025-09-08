@@ -15,6 +15,7 @@ function App() {
         <div className='flex gap-5 items-center text-white text-center mt-10'>
           <Input />
           <Start />
+          <div className='bg-nqb rounded-xl p-3 shadow-2xl font-semibold w-25'></div>
         </div>
       </div>
     </>
