@@ -1,9 +1,8 @@
 import { ipcMain, BrowserWindow, app } from "electron";
 import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
-import { spawn } from "child_process";
 import path from "node:path";
-createRequire(import.meta.url);
+const require2 = createRequire(import.meta.url);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 process.env.APP_ROOT = path.join(__dirname, "..");
 const VITE_DEV_SERVER_URL = process.env["VITE_DEV_SERVER_URL"];
@@ -40,20 +39,28 @@ ipcMain.on("close-window", () => {
   const win2 = BrowserWindow.getFocusedWindow();
   win2 == null ? void 0 : win2.close();
 });
-ipcMain.on("compress-video", (event, filePath) => {
-  const scriptPath = path.join(process.env.APP_ROOT, "python", "main.py");
-  const outputFile = filePath.replace(/\.mp4$/, "_compressed.mp4");
-  const python = spawn("python", [scriptPath, filePath, outputFile, "8000"]);
+ipcMain.on("compress-video", (event, filePath, targetSize) => {
+  const { spawn: spawn2 } = require2("child_process");
+  const path2 = require2("node:path");
+  const ext = path2.extname(filePath);
+  const base = path2.basename(filePath, ext);
+  const dir = path2.dirname(filePath);
+  const outputFile = path2.join(dir, `${base}_compressed${ext}`);
+  const python = spawn2("python", [
+    path2.join(__dirname, "../python/main.py"),
+    filePath,
+    outputFile,
+    targetSize.toString()
+  ]);
   python.stdout.on("data", (data) => {
     console.log(`stdout: ${data}`);
-    event.sender.send("compress-progress", data.toString());
   });
   python.stderr.on("data", (data) => {
     console.error(`stderr: ${data}`);
   });
   python.on("close", (code) => {
-    console.log(`Python exited with code ${code}`);
-    event.sender.send("compress-done", outputFile);
+    console.log(`Python process exited with code ${code}`);
+    event.sender.send("compression-done", outputFile);
   });
 });
 app.on("window-all-closed", () => {

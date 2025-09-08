@@ -63,26 +63,36 @@ ipcMain.on('close-window', () => {
   win?.close()
 })
 
-ipcMain.on("compress-video", (event, filePath) => {
-  const scriptPath = path.join(process.env.APP_ROOT, "python", "main.py")
-  const outputFile = filePath.replace(/\.mp4$/, "_compressed.mp4")
+ipcMain.on("compress-video", (event, filePath: string, targetSize: number) => {
+  const { spawn } = require("child_process");
+  const path = require("node:path");
 
-  const python = spawn("python", [scriptPath, filePath, outputFile, "8000"]) 
+  const ext = path.extname(filePath);
+  const base = path.basename(filePath, ext);
+  const dir = path.dirname(filePath);
+  const outputFile = path.join(dir, `${base}_compressed${ext}`);
+
+  const python = spawn("python", [
+    path.join(__dirname, "../python/main.py"),
+    filePath,
+    outputFile,
+    targetSize.toString(),
+  ]);
 
   python.stdout.on("data", (data) => {
-    console.log(`stdout: ${data}`)
-    event.sender.send("compress-progress", data.toString())
-  })
+    console.log(`stdout: ${data}`);
+  });
 
   python.stderr.on("data", (data) => {
-    console.error(`stderr: ${data}`)
-  })
+    console.error(`stderr: ${data}`);
+  });
 
   python.on("close", (code) => {
-    console.log(`Python exited with code ${code}`)
-    event.sender.send("compress-done", outputFile)
-  })
-})
+    console.log(`Python process exited with code ${code}`);
+    event.sender.send("compression-done", outputFile); 
+  });
+});
+
 
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits

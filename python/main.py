@@ -18,18 +18,25 @@ def compress_video(video_full_path, output_file_name, target_size):
         elif audio_bitrate > max_audio_bitrate:
             audio_bitrate = max_audio_bitrate
 
-    video_bitrate = target_total_bitrate - audio_bitrate
+    audio_bitrate = int(audio_bitrate)
+    video_bitrate = max(100_000, int(target_total_bitrate - audio_bitrate))  # at least ~100 kbps
 
     i = ffmpeg.input(video_full_path)
-    ffmpeg.output(i, os.devnull,
-                  **{'c:v': 'libx264', 'b:v': video_bitrate, 'pass': 1, 'f': 'mp4'}
-                  ).overwrite_output().run()
-    ffmpeg.output(i, output_file_name,
-                  **{'c:v': 'libx264', 'b:v': video_bitrate, 'pass': 2, 'c:a': 'aac', 'b:a': audio_bitrate}
-                  ).overwrite_output().run()
+    ffmpeg.output(
+        i,
+        os.devnull,
+        **{'c:v': 'libx264', 'b:v': str(video_bitrate), 'pass': 1, 'f': 'mp4'}
+    ).overwrite_output().run()
+
+    ffmpeg.output(
+        i,
+        output_file_name,
+        **{'c:v': 'libx264', 'b:v': str(video_bitrate), 'pass': 2, 'c:a': 'aac', 'b:a': str(audio_bitrate)}
+    ).overwrite_output().run()
+
 
 if __name__ == "__main__":
     input_file = sys.argv[1]
     output_file = sys.argv[2]
-    target_size = int(sys.argv[3])  # in KB
+    target_size = int(sys.argv[3]) * 1024
     compress_video(input_file, output_file, target_size)
