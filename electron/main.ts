@@ -64,13 +64,7 @@ ipcMain.on('close-window', () => {
 })
 
 ipcMain.on("compress-video", (event, filePath: string, targetSize: number) => {
-  const { spawn } = require("child_process");
-  const path = require("node:path");
-
-  const ext = path.extname(filePath);
-  const base = path.basename(filePath, ext);
-  const dir = path.dirname(filePath);
-  const outputFile = path.join(dir, `${base}_compressed${ext}`);
+  const outputFile = filePath.replace(/\.mp4$/, "_compressed.mp4");
 
   const python = spawn("python", [
     path.join(__dirname, "../python/main.py"),
@@ -80,7 +74,13 @@ ipcMain.on("compress-video", (event, filePath: string, targetSize: number) => {
   ]);
 
   python.stdout.on("data", (data) => {
-    console.log(`stdout: ${data}`);
+    const lines = data.toString().split("\n");
+    lines.forEach((line) => {
+      if (line.startsWith("PROGRESS:")) {
+        const progress = parseFloat(line.replace("PROGRESS:", ""));
+        event.sender.send("compression-progress", progress);
+      }
+    });
   });
 
   python.stderr.on("data", (data) => {
@@ -89,7 +89,7 @@ ipcMain.on("compress-video", (event, filePath: string, targetSize: number) => {
 
   python.on("close", (code) => {
     console.log(`Python process exited with code ${code}`);
-    event.sender.send("compression-done", outputFile); 
+    event.sender.send("compression-done", outputFile);
   });
 });
 

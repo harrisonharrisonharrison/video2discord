@@ -39,13 +39,13 @@ export default function Dropzone({ setFiles }: { setFiles: (files: File[]) => vo
       }`}
     >
       {fileName ? (
-        <span className="text-lg">📂 {fileName}</span>
+        <span className="text-lg">{fileName}</span>
       ) : isDragging ? (
         <span>Release to upload your video</span>
       ) : (
         <>
           <AiFillPicture className="text-6xl mb-4" />
-          Drag Video Files Here
+          Drag Video File Here
         </>
       )}
     </div>
