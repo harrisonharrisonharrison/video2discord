@@ -1,9 +1,8 @@
 import { ipcMain, BrowserWindow, app } from "electron";
 import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
-import { spawn } from "child_process";
 import path from "node:path";
-createRequire(import.meta.url);
+const require2 = createRequire(import.meta.url);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 process.env.APP_ROOT = path.join(__dirname, "..");
 const VITE_DEV_SERVER_URL = process.env["VITE_DEV_SERVER_URL"];
@@ -32,6 +31,10 @@ function createWindow() {
     win.loadFile(path.join(RENDERER_DIST, "index.html"));
   }
 }
+function hmsToSeconds(hms) {
+  const [h, m, s] = hms.split(":").map(Number);
+  return h * 3600 + m * 60 + s;
+}
 ipcMain.on("minimize-window", () => {
   const win2 = BrowserWindow.getFocusedWindow();
   win2 == null ? void 0 : win2.minimize();
@@ -41,24 +44,34 @@ ipcMain.on("close-window", () => {
   win2 == null ? void 0 : win2.close();
 });
 ipcMain.on("compress-video", (event, filePath, targetSize) => {
-  const outputFile = filePath.replace(/\.mp4$/, "_compressed.mp4");
-  const python = spawn("python", [
-    path.join(__dirname, "../python/main.py"),
+  const { spawn: spawn2 } = require2("child_process");
+  const path2 = require2("node:path");
+  const ext = path2.extname(filePath);
+  const base = path2.basename(filePath, ext);
+  const dir = path2.dirname(filePath);
+  const outputFile = path2.join(dir, `${base}_compressed${ext}`);
+  const python = spawn2("python", [
+    path2.join(__dirname, "../python/main.py"),
     filePath,
     outputFile,
     targetSize.toString()
   ]);
+  let duration = 0;
   python.stdout.on("data", (data) => {
-    const lines = data.toString().split("\n");
-    lines.forEach((line) => {
-      if (line.startsWith("PROGRESS:")) {
-        const progress = parseFloat(line.replace("PROGRESS:", ""));
-        event.sender.send("compression-progress", progress);
-      }
-    });
+    const message = data.toString().trim();
+    if (message.startsWith("DURATION=")) {
+      duration = parseFloat(message.split("=")[1]);
+      event.sender.send("compression-duration", { file: filePath, duration });
+    }
   });
   python.stderr.on("data", (data) => {
-    console.error(`stderr: ${data}`);
+    const message = data.toString();
+    const timeMatch = message.match(/time=(\d+:\d+:\d+\.\d+)/);
+    if (timeMatch && duration > 0) {
+      const currentTime = hmsToSeconds(timeMatch[1]);
+      const progress = currentTime / duration * 100;
+      event.sender.send("compression-progress", { file: filePath, progress });
+    }
   });
   python.on("close", (code) => {
     console.log(`Python process exited with code ${code}`);

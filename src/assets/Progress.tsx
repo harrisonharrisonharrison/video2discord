@@ -1,23 +1,36 @@
-export default function Progress({
-  completed,
-  total,
-}: {
-  completed: number;
-  total: number;
-}) {
-  const percent = total > 0 ? (completed / total) * 100 : 0;
+import { useEffect, useState } from "react";
+
+export default function Progress() {
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    const handleDuration = (_event: any, data: any) => {
+      if (data?.duration) {
+        console.log("Video duration:", data.duration);
+      }
+    };
+
+    const handleProgress = (_event: any, data: any) => {
+      if (typeof data?.progress === "number") {
+        setProgress(Math.min(data.progress, 100));
+      }
+    };
+
+    window.ipcRenderer.on("compression-duration", handleDuration);
+    window.ipcRenderer.on("compression-progress", handleProgress);
+
+    return () => {
+      window.ipcRenderer?.removeAllListeners?.("compression-duration");
+      window.ipcRenderer?.removeAllListeners?.("compression-progress");
+    };
+  }, []);
 
   return (
-    <div className="flex-grow mt-4">
-      <div className="w-full bg-gray-300 rounded-full h-6 overflow-hidden shadow-inner">
-        <div
-          className="bg-green-500 h-6 transition-all duration-500 ease-out"
-          style={{ width: `${percent}%` }}
-        />
-      </div>
-      <p className="text-white text-center mt-2 font-semibold">
-        {completed}/{total}
-      </p>
+    <div className="w-64 h-4 bg-gray-700 rounded-full overflow-hidden">
+      <div
+        className="h-full bg-green-500 transition-all"
+        style={{ width: `${progress}%` }}
+      />
     </div>
   );
 }

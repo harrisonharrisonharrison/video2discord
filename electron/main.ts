@@ -52,6 +52,10 @@ function createWindow() {
     win.loadFile(path.join(RENDERER_DIST, 'index.html'))
   }
 }
+function hmsToSeconds(hms: string) {
+  const [h, m, s] = hms.split(":").map(Number);
+  return h * 3600 + m * 60 + s;
+}
 
 ipcMain.on('minimize-window', () => {
   const win = BrowserWindow.getFocusedWindow()
@@ -64,7 +68,13 @@ ipcMain.on('close-window', () => {
 })
 
 ipcMain.on("compress-video", (event, filePath: string, targetSize: number) => {
-  const outputFile = filePath.replace(/\.mp4$/, "_compressed.mp4");
+  const { spawn } = require("child_process");
+  const path = require("node:path");
+
+  const ext = path.extname(filePath);
+  const base = path.basename(filePath, ext);
+  const dir = path.dirname(filePath);
+  const outputFile = path.join(dir, `${base}_compressed${ext}`);
 
   const python = spawn("python", [
     path.join(__dirname, "../python/main.py"),
@@ -73,23 +83,29 @@ ipcMain.on("compress-video", (event, filePath: string, targetSize: number) => {
     targetSize.toString(),
   ]);
 
+  let duration = 0;
+
   python.stdout.on("data", (data) => {
-    const lines = data.toString().split("\n");
-    lines.forEach((line) => {
-      if (line.startsWith("PROGRESS:")) {
-        const progress = parseFloat(line.replace("PROGRESS:", ""));
-        event.sender.send("compression-progress", progress);
-      }
-    });
+    const message = data.toString().trim();
+    if (message.startsWith("DURATION=")) {
+      duration = parseFloat(message.split("=")[1]);
+      event.sender.send("compression-duration", { file: filePath, duration });
+    }
   });
 
   python.stderr.on("data", (data) => {
-    console.error(`stderr: ${data}`);
+    const message = data.toString();
+    const timeMatch = message.match(/time=(\d+:\d+:\d+\.\d+)/);
+    if (timeMatch && duration > 0) {
+      const currentTime = hmsToSeconds(timeMatch[1]);
+      const progress = (currentTime / duration) * 100;
+      event.sender.send("compression-progress", { file: filePath, progress });
+    }
   });
 
   python.on("close", (code) => {
     console.log(`Python process exited with code ${code}`);
-    event.sender.send("compression-done", outputFile);
+    event.sender.send("compression-done", outputFile); 
   });
 });
 
