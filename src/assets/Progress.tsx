@@ -12,25 +12,38 @@ export default function Progress() {
 
     const handleProgress = (_event: any, data: any) => {
       if (typeof data?.progress === "number") {
-        setProgress(Math.min(data.progress, 100));
+        setProgress(Math.min(Math.round(data.progress), 100));
       }
+    };
+
+    const handleDone = () => {
+      setProgress(100);
     };
 
     window.ipcRenderer.on("compression-duration", handleDuration);
     window.ipcRenderer.on("compression-progress", handleProgress);
+    window.ipcRenderer.on("compression-done", handleDone);
 
     return () => {
       window.ipcRenderer?.removeAllListeners?.("compression-duration");
       window.ipcRenderer?.removeAllListeners?.("compression-progress");
+      window.ipcRenderer?.removeAllListeners?.("compression-done")
     };
   }, []);
 
   return (
     <div className="w-64 h-4 bg-gray-700 rounded-full overflow-hidden">
+      { progress == 100 ? 
       <div
-        className="h-full bg-green-500 transition-all"
+        className="h-full bg-green-700 transition-all"
         style={{ width: `${progress}%` }}
       />
+      :
+      <div
+        className="h-full bg-blurple animate-pulse transition-all"
+        style={{ width: `${progress}%` }}
+      />
+      }
     </div>
   );
 }
