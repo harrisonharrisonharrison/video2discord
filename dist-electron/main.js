@@ -1,7 +1,8 @@
-import { ipcMain, BrowserWindow, app } from "electron";
+import { ipcMain, BrowserWindow, shell, app } from "electron";
 import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
+import fs from "fs";
 const require2 = createRequire(import.meta.url);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 process.env.APP_ROOT = path.join(__dirname, "..");
@@ -43,6 +44,18 @@ ipcMain.on("close-window", () => {
   const win2 = BrowserWindow.getFocusedWindow();
   win2 == null ? void 0 : win2.close();
 });
+ipcMain.handle("check-file-exists", (_event, filePath) => {
+  return fs.existsSync(filePath);
+});
+ipcMain.handle("open-in-explorer", async (_event, filePath) => {
+  try {
+    await shell.showItemInFolder(filePath);
+    return true;
+  } catch (err) {
+    console.error("Failed to open in explorer:", err);
+    return false;
+  }
+});
 ipcMain.on("compress-video", (event, filePath, targetSize) => {
   const { spawn: spawn2 } = require2("child_process");
   const path2 = require2("node:path");
@@ -75,7 +88,7 @@ ipcMain.on("compress-video", (event, filePath, targetSize) => {
   });
   python.on("close", (code) => {
     console.log(`Python process exited with code ${code}`);
-    event.sender.send("compression-done", outputFile);
+    event.sender.send("compression-done", { outputPath: outputFile });
   });
 });
 app.on("window-all-closed", () => {

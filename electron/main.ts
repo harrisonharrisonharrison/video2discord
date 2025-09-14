@@ -1,8 +1,9 @@
-import { app, BrowserWindow, ipcMain } from 'electron'
+import { app, BrowserWindow, ipcMain, shell } from 'electron'
 import { createRequire } from 'node:module'
 import { fileURLToPath } from 'node:url'
 import { spawn } from "child_process"
 import path from 'node:path'
+import fs from "fs";
 
 const require = createRequire(import.meta.url)
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -67,6 +68,21 @@ ipcMain.on('close-window', () => {
   win?.close()
 })
 
+ipcMain.handle("check-file-exists", (_event, filePath: string) => {
+  return fs.existsSync(filePath);
+});
+
+ipcMain.handle("open-in-explorer", async (_event, filePath: string) => {
+  try {
+    // Show file in its folder (cross-platform safe)
+    await shell.showItemInFolder(filePath);
+    return true;
+  } catch (err) {
+    console.error("Failed to open in explorer:", err);
+    return false;
+  }
+});
+
 ipcMain.on("compress-video", (event, filePath: string, targetSize: number) => {
   const { spawn } = require("child_process");
   const path = require("node:path");
@@ -105,7 +121,7 @@ ipcMain.on("compress-video", (event, filePath: string, targetSize: number) => {
 
   python.on("close", (code) => {
     console.log(`Python process exited with code ${code}`);
-    event.sender.send("compression-done", outputFile); 
+    event.sender.send("compression-done", { outputPath: outputFile });
   });
 });
 

@@ -4,6 +4,7 @@ import TopBar from './assets/TopBar'
 import Input from './assets/Input';
 import Start from './assets/Start';
 import Progress from './assets/Progress';
+import SavedVideos from './assets/SavedVideos';
 import { useState } from 'react';
 
 function App() {
@@ -21,6 +22,12 @@ function App() {
             <Input mb={targetSize} setMb={setTargetSize} />
             <Start files={files} targetSize={targetSize} />
             <Progress />
+          </div>
+          <div className='mt-5 w-[70vw] gap-5 flex'>
+            <SavedVideos />
+            <div className='border-1 h-[30vh]'>
+
+            </div>
           </div>
         </div>
       </div>
