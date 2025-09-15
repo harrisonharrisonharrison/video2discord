@@ -18,6 +18,7 @@
     "artifactName": "${productName}-Mac-${version}-Installer.${ext}"
   },
   "win": {
+    "icon": "src/favicon.ico",
     "target": [
       {
         "target": "nsis",

@@ -30,7 +30,7 @@ let win: BrowserWindow | null
 
 function createWindow() {
   win = new BrowserWindow({
-    icon: path.join(process.env.VITE_PUBLIC, 'electron-vite.svg'),
+    icon: path.join(__dirname, '/favicon.ico'),
     webPreferences: {
       preload: path.join(__dirname, 'preload.mjs'),
     },
@@ -40,7 +40,9 @@ function createWindow() {
     height: 600,
     transparent: true,
   })
-  
+
+  win.setIcon(path.join(__dirname, '/favicon.ico'));
+
   // Test active push message to Renderer-process.
   win.webContents.on('did-finish-load', () => {
     win?.webContents.send('main-process-message', (new Date).toLocaleString())

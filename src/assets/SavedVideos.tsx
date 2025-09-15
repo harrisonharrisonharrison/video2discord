@@ -62,12 +62,12 @@ export default function SavedVideos() {
   }, []);
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col w-[70vw]">
       <h1 className="text-white border-b-1 bg-dlurple indent-3 font-semibold text-base/10 border-dlurple rounded-t-xl">
         Saved Videos
       </h1>
 
-      <div className="bg-nqb h-[30vh] w-64 rounded-b-xl p-3 overflow-auto">
+      <div className="bg-nqb h-[30vh] rounded-b-xl p-3 overflow-auto">
         {videos.length === 0 ? (
           <div className="text-sm text-gray-300">No saved videos yet</div>
         ) : (

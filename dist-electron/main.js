@@ -13,7 +13,7 @@ process.env.VITE_PUBLIC = VITE_DEV_SERVER_URL ? path.join(process.env.APP_ROOT, 
 let win;
 function createWindow() {
   win = new BrowserWindow({
-    icon: path.join(process.env.VITE_PUBLIC, "electron-vite.svg"),
+    icon: path.join(__dirname, "/favicon.ico"),
     webPreferences: {
       preload: path.join(__dirname, "preload.mjs")
     },
@@ -23,6 +23,7 @@ function createWindow() {
     height: 600,
     transparent: true
   });
+  win.setIcon(path.join(__dirname, "/favicon.ico"));
   win.webContents.on("did-finish-load", () => {
     win == null ? void 0 : win.webContents.send("main-process-message", (/* @__PURE__ */ new Date()).toLocaleString());
   });

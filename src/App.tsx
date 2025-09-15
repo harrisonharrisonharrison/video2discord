@@ -25,9 +25,6 @@ function App() {
           </div>
           <div className='mt-5 w-[70vw] gap-5 flex'>
             <SavedVideos />
-            <div className='border-1 h-[30vh]'>
-
-            </div>
           </div>
         </div>
       </div>
