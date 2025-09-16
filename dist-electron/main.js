@@ -23,7 +23,6 @@ function createWindow() {
     height: 600,
     transparent: true
   });
-  win.setIcon(path.join(__dirname, "/favicon.ico"));
   win.webContents.on("did-finish-load", () => {
     win == null ? void 0 : win.webContents.send("main-process-message", (/* @__PURE__ */ new Date()).toLocaleString());
   });
