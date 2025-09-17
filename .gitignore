@@ -25,3 +25,8 @@ dist-ssr
 
 ffmpeg2pass-0.log
 ffmpeg2pass-0.log.mbtree
+
+*.exe
+release/
+win-unpacked/
+dist/
