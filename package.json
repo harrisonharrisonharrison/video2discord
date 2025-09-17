@@ -1,8 +1,13 @@
 {
   "name": "video2discord",
+  "author": {
+    "name": "harrisonharrisonharrison"
+  },
+  "description": "A user friendly app to compress videos to send to Discord using ffmpeg.",
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "main": "dist-electron/main.js",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build && electron-builder",
@@ -32,5 +37,27 @@
     "vite-plugin-electron": "^0.28.6",
     "vite-plugin-electron-renderer": "^0.14.5"
   },
-  "main": "dist-electron/main.js"
+  "build": {
+    "appId": "com.video2discord.app",
+    "productName": "video2discord",
+    "files": [
+      "dist/**/*",
+      "dist-electron/**/*"
+    ],
+    "directories": {
+      "output": "release",
+      "buildResources": "assets"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "assets/favicon.ico"
+    },
+    "extraResources": [
+      {
+        "from": "python-dist/",
+        "to": "python/",
+        "filter": ["**/*"]
+      }
+    ]
+  }
 }

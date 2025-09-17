@@ -1,0 +1,18 @@
+directories:
+  output: release
+  buildResources: assets
+appId: com.video2discord.app
+productName: video2discord
+files:
+  - filter:
+      - dist/**/*
+      - dist-electron/**/*
+win:
+  target: nsis
+  icon: assets/favicon.ico
+extraResources:
+  - from: python-dist/
+    to: python/
+    filter:
+      - '**/*'
+electronVersion: 30.5.1

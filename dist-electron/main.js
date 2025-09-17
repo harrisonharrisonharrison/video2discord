@@ -1,110 +1,85 @@
-import { ipcMain, BrowserWindow, shell, app } from "electron";
-import { createRequire } from "node:module";
-import { fileURLToPath } from "node:url";
-import path from "node:path";
-import fs from "fs";
-const require2 = createRequire(import.meta.url);
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-process.env.APP_ROOT = path.join(__dirname, "..");
-const VITE_DEV_SERVER_URL = process.env["VITE_DEV_SERVER_URL"];
-const MAIN_DIST = path.join(process.env.APP_ROOT, "dist-electron");
-const RENDERER_DIST = path.join(process.env.APP_ROOT, "dist");
-process.env.VITE_PUBLIC = VITE_DEV_SERVER_URL ? path.join(process.env.APP_ROOT, "public") : RENDERER_DIST;
-let win;
-function createWindow() {
-  win = new BrowserWindow({
-    icon: path.join(__dirname, "/favicon.ico"),
+import { ipcMain as d, BrowserWindow as u, shell as I, app as a } from "electron";
+import { createRequire as P } from "node:module";
+import { fileURLToPath as S } from "node:url";
+import s from "node:path";
+import O from "fs";
+const g = P(import.meta.url), l = s.dirname(S(import.meta.url));
+process.env.APP_ROOT = s.join(l, "..");
+const f = process.env.VITE_DEV_SERVER_URL, W = s.join(process.env.APP_ROOT, "dist-electron"), T = s.join(process.env.APP_ROOT, "dist");
+process.env.VITE_PUBLIC = f ? s.join(process.env.APP_ROOT, "public") : T;
+let n;
+function E() {
+  n = new u({
+    icon: s.join(l, "/favicon.ico"),
     webPreferences: {
-      preload: path.join(__dirname, "preload.mjs")
+      preload: s.join(l, "preload.mjs")
     },
-    frame: false,
-    autoHideMenuBar: true,
+    frame: !1,
+    autoHideMenuBar: !0,
     width: 800,
     height: 600,
-    transparent: true
-  });
-  win.webContents.on("did-finish-load", () => {
-    win == null ? void 0 : win.webContents.send("main-process-message", (/* @__PURE__ */ new Date()).toLocaleString());
-  });
-  if (VITE_DEV_SERVER_URL) {
-    win.loadURL(VITE_DEV_SERVER_URL);
-  } else {
-    win.loadFile(path.join(RENDERER_DIST, "index.html"));
-  }
+    transparent: !0
+  }), n.webContents.on("did-finish-load", () => {
+    n == null || n.webContents.send("main-process-message", (/* @__PURE__ */ new Date()).toLocaleString());
+  }), f ? n.loadURL(f) : n.loadFile(s.join(T, "index.html"));
 }
-function hmsToSeconds(hms) {
-  const [h, m, s] = hms.split(":").map(Number);
-  return h * 3600 + m * 60 + s;
+function D(e) {
+  const [o, r, p] = e.split(":").map(Number);
+  return o * 3600 + r * 60 + p;
 }
-ipcMain.on("minimize-window", () => {
-  const win2 = BrowserWindow.getFocusedWindow();
-  win2 == null ? void 0 : win2.minimize();
+d.on("minimize-window", () => {
+  const e = u.getFocusedWindow();
+  e == null || e.minimize();
 });
-ipcMain.on("close-window", () => {
-  const win2 = BrowserWindow.getFocusedWindow();
-  win2 == null ? void 0 : win2.close();
+d.on("close-window", () => {
+  const e = u.getFocusedWindow();
+  e == null || e.close();
 });
-ipcMain.handle("check-file-exists", (_event, filePath) => {
-  return fs.existsSync(filePath);
-});
-ipcMain.handle("open-in-explorer", async (_event, filePath) => {
+d.handle("check-file-exists", (e, o) => O.existsSync(o));
+d.handle("open-in-explorer", async (e, o) => {
   try {
-    await shell.showItemInFolder(filePath);
-    return true;
-  } catch (err) {
-    console.error("Failed to open in explorer:", err);
-    return false;
+    return await I.showItemInFolder(o), !0;
+  } catch (r) {
+    return console.error("Failed to open in explorer:", r), !1;
   }
 });
-ipcMain.on("compress-video", (event, filePath, targetSize) => {
-  const { spawn: spawn2 } = require2("child_process");
-  const path2 = require2("node:path");
-  const ext = path2.extname(filePath);
-  const base = path2.basename(filePath, ext);
-  const dir = path2.dirname(filePath);
-  const outputFile = path2.join(dir, `${base}_compressed${ext}`);
-  const python = spawn2("python", [
-    path2.join(__dirname, "../python/main.py"),
-    filePath,
-    outputFile,
-    targetSize.toString()
-  ]);
-  let duration = 0;
-  python.stdout.on("data", (data) => {
-    const message = data.toString().trim();
-    if (message.startsWith("DURATION=")) {
-      duration = parseFloat(message.split("=")[1]);
-      event.sender.send("compression-duration", { file: filePath, duration });
+d.on("compress-video", (e, o, r) => {
+  const { spawn: p } = g("child_process"), i = g("node:path"), _ = i.extname(o), j = i.basename(o, _), x = i.dirname(o), h = i.join(x, `${j}_compressed${_}`), v = !a.isPackaged;
+  let c;
+  if (v)
+    c = p("python", [
+      i.join(l, "../python/main.py"),
+      o,
+      h,
+      r.toString()
+    ]);
+  else {
+    const t = i.join(process.resourcesPath, "python", "main.exe");
+    c = p(t, [o, h, r.toString()]);
+  }
+  let m = 0;
+  c.stdout.on("data", (t) => {
+    const w = t.toString().trim();
+    w.startsWith("DURATION=") && (m = parseFloat(w.split("=")[1]), e.sender.send("compression-duration", { file: o, duration: m }));
+  }), c.stderr.on("data", (t) => {
+    const R = t.toString().match(/time=(\d+:\d+:\d+\.\d+)/);
+    if (R && m > 0) {
+      const y = D(R[1]) / m * 100;
+      e.sender.send("compression-progress", { file: o, progress: y });
     }
-  });
-  python.stderr.on("data", (data) => {
-    const message = data.toString();
-    const timeMatch = message.match(/time=(\d+:\d+:\d+\.\d+)/);
-    if (timeMatch && duration > 0) {
-      const currentTime = hmsToSeconds(timeMatch[1]);
-      const progress = currentTime / duration * 100;
-      event.sender.send("compression-progress", { file: filePath, progress });
-    }
-  });
-  python.on("close", (code) => {
-    console.log(`Python process exited with code ${code}`);
-    event.sender.send("compression-done", { outputPath: outputFile });
+  }), c.on("close", (t) => {
+    console.log(`Python process exited with code ${t}`), e.sender.send("compression-done", { outputPath: h });
   });
 });
-app.on("window-all-closed", () => {
-  if (process.platform !== "darwin") {
-    app.quit();
-    win = null;
-  }
+a.on("window-all-closed", () => {
+  process.platform !== "darwin" && (a.quit(), n = null);
 });
-app.on("activate", () => {
-  if (BrowserWindow.getAllWindows().length === 0) {
-    createWindow();
-  }
+a.on("activate", () => {
+  u.getAllWindows().length === 0 && E();
 });
-app.whenReady().then(createWindow);
+a.whenReady().then(E);
 export {
-  MAIN_DIST,
-  RENDERER_DIST,
-  VITE_DEV_SERVER_URL
+  W as MAIN_DIST,
+  T as RENDERER_DIST,
+  f as VITE_DEV_SERVER_URL
 };
