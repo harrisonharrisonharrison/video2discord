@@ -1,7 +1,6 @@
 import { app, BrowserWindow, ipcMain, shell } from 'electron'
 import { createRequire } from 'node:module'
 import { fileURLToPath } from 'node:url'
-import { spawn } from "child_process"
 import path from 'node:path'
 import fs from "fs";
 
@@ -92,16 +91,24 @@ ipcMain.on("compress-video", (event, filePath: string, targetSize: number) => {
   const dir = path.dirname(filePath);
   const outputFile = path.join(dir, `${base}_compressed${ext}`);
 
-  const python = spawn("python", [
-    path.join(__dirname, "../python/main.py"),
-    filePath,
-    outputFile,
-    targetSize.toString(),
-  ]);
+  const isDev = !app.isPackaged;
+  let python;
+
+  if (isDev) {
+    python = spawn("python", [
+      path.join(__dirname, "../python/main.py"),
+      filePath,
+      outputFile,
+      targetSize.toString(),
+    ]);
+  } else {
+    const exePath = path.join(process.resourcesPath, "python", "main.exe");
+    python = spawn(exePath, [filePath, outputFile, targetSize.toString()]);
+  }
 
   let duration = 0;
 
-  python.stdout.on("data", (data) => {
+  python.stdout.on("data", (data: Buffer) => {
     const message = data.toString().trim();
     if (message.startsWith("DURATION=")) {
       duration = parseFloat(message.split("=")[1]);
@@ -109,7 +116,7 @@ ipcMain.on("compress-video", (event, filePath: string, targetSize: number) => {
     }
   });
 
-  python.stderr.on("data", (data) => {
+  python.stderr.on("data", (data: Buffer) => {
     const message = data.toString();
     const timeMatch = message.match(/time=(\d+:\d+:\d+\.\d+)/);
     if (timeMatch && duration > 0) {
@@ -119,7 +126,7 @@ ipcMain.on("compress-video", (event, filePath: string, targetSize: number) => {
     }
   });
 
-  python.on("close", (code) => {
+  python.on("close", (code: number | null) => {
     console.log(`Python process exited with code ${code}`);
     event.sender.send("compression-done", { outputPath: outputFile });
   });
