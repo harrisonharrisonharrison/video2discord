@@ -1,5 +1,5 @@
 import React from 'react'
-import '../favicon.ico'
+import icon from '../icon.png'
 
 export default function TopBar() {
     const handleMinimize = () => {
@@ -14,7 +14,14 @@ export default function TopBar() {
         className="rounded-t-xl bg-darple w-screen h-7 text-white indent-10"
         style={{ WebkitAppRegion: 'drag' }}
       >
+        <img src={icon} className="h-5 w-5 absolute top-1 left-3" />
+        <h1 className='absolute top-1 text-sm text-gray-400'>video2discord</h1>
       </div>
+              
+      <div className='flex flex-row w-screen'>
+        
+      </div>
+
       <div id="control-buttons" className="text-stone-200 absolute top-0 right-0 pe-2" style={{ WebkitAppRegion: 'no-drag' }}>
         <button id="min-button" className='p-1' onClick={handleMinimize}>&#95;</button>
         <button id="close-button" className='p-1' onClick={handleClose}>&#128473;</button>
