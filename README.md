@@ -7,14 +7,16 @@ video2discord is a user friendly app that compresses video files using ffmpeg to
 Typically, messaging apps like Discord limit file upload sizes to low amounts, like 8mb. This prevents users from being able to share larger files like videos.
 video2discord helps bypass this restriction by:
 - Leveraging ffmpeg's Python wrapper to compress videos
-- Offering an user friendly interface
+- Offering a user friendly interface
 - Adjustable file sizes
 - Easily accessible compressed videos
 
 ## Installation
-1. On the left, click on the latest release.
+1. On the right, click on the latest release.
 2. Download the installer and run it.
+   
 *Note: Windows may flag this file as dangerous. Click "More info" and "Run anyway"*
+
 3. Delete the setup installer.
 
 ## Usage
