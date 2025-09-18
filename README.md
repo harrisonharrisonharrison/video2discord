@@ -1,30 +1,20 @@
-# React + TypeScript + Vite
+# video2discord
+video2discord is a user friendly app that compresses video files using ffmpeg to send to Discord
+<img width="400" height="400" alt="icon" src="https://github.com/user-attachments/assets/9dffa6db-2023-4d3e-b132-559035722258" />
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Overview
 
-Currently, two official plugins are available:
+Typically, messaging apps like Discord limit file upload sizes to low amounts, like 8mb. This prevents users from being able to share larger files like videos.
+video2discord helps bypass this restriction by:
+- Leveraging ffmpeg's Python wrapper to compress videos
+- Offering an user friendly interface
+- Adjustable file sizes
+- Easily accessible compressed videos
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Usage
+![2025-09-1719-59-32-ezgif com-video-to-gif-converter](https://github.com/user-attachments/assets/ea575a4c-23cf-4478-8528-d8a9de090dd9)
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
-
-- Configure the top-level `parserOptions` property like this:
-
-```js
-export default {
-  // other rules...
-  parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    project: ['./tsconfig.json', './tsconfig.node.json'],
-    tsconfigRootDir: __dirname,
-  },
-}
-```
-
-- Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
-- Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
+1. Simply drag and drop a video file (currently supports major file types like MP4, AVI, etc.)
+2. Select the desired size for your final video
+3. Click start and wait for the compression to finish
+4. Click on the finished video in the "Saved Videos" pane
