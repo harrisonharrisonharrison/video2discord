@@ -11,6 +11,10 @@ video2discord helps bypass this restriction by:
 - Adjustable file sizes
 - Easily accessible compressed videos
 
+## Installation
+1. On the left, click on the latest release.
+2. Download the installer and run it.
+
 ## Usage
 ![2025-09-1719-59-32-ezgif com-video-to-gif-converter](https://github.com/user-attachments/assets/ea575a4c-23cf-4478-8528-d8a9de090dd9)
 
