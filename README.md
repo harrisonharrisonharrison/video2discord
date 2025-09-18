@@ -14,6 +14,8 @@ video2discord helps bypass this restriction by:
 ## Installation
 1. On the left, click on the latest release.
 2. Download the installer and run it.
+*Note: Windows may flag this file as dangerous. Click "More info" and "Run anyway"*
+3. Delete the setup installer.
 
 ## Usage
 ![2025-09-1719-59-32-ezgif com-video-to-gif-converter](https://github.com/user-attachments/assets/ea575a4c-23cf-4478-8528-d8a9de090dd9)
