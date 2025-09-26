@@ -1,5 +1,5 @@
 # video2discord
-video2discord is a user friendly app that compresses video files using ffmpeg to send to Discord
+video2discord is a user friendly app that compresses video files using ffmpeg to send to Discord.
 <img width="400" height="400" alt="icon" src="https://github.com/user-attachments/assets/9dffa6db-2023-4d3e-b132-559035722258" />
 
 ## Overview
